@@ -1,0 +1,47 @@
+[build-system]
+requires = ["hatchling>=1.24.2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "logtracer"
+version = "0.1.0"
+description = "Visual graph-based Python logging and debugging framework."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+  { name = "Mickelborg" }
+]
+dependencies = [
+  "pydantic>=2.11.0",
+  "rich>=13.9.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3.0",
+  "pytest-asyncio>=0.25.0",
+  "ruff>=0.9.0",
+  "ty>=0.0.17",
+]
+
+[project.scripts]
+logtracer = "logtracer.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/logtracer"]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "C4", "SIM", "RUF"]
+
+[tool.ty.src]
+include = ["src", "tests", "examples"]

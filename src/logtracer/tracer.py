@@ -1,0 +1,72 @@
+"""Trace entry points."""
+
+from __future__ import annotations
+
+from contextvars import Token
+from datetime import UTC, datetime
+from types import TracebackType
+
+from .config import get_settings
+from .context import (
+    push_current_node,
+    push_current_trace,
+    reset_current_node,
+    reset_current_trace,
+)
+from .graph import Node, TraceGraph
+from .span import Span
+
+
+class TraceContext:
+    """Sync + async context manager that captures one trace."""
+
+    def __init__(self, name: str, metadata: dict[str, object] | None = None) -> None:
+        self.trace_graph = TraceGraph(
+            name=name,
+            metadata=metadata or {},
+            start_time=datetime.now(UTC),
+        )
+        self.root_span = Span(trace=self.trace_graph, name=name, node_type="trace")
+        self._trace_token: Token[TraceGraph | None] | None = None
+        self._node_token: Token[Node | None] | None = None
+
+    def _finalize(self) -> None:
+        self.trace_graph.end_time = datetime.now(UTC)
+        settings = get_settings()
+        settings.storage.save(self.trace_graph)
+
+    def __enter__(self) -> Span:
+        self._trace_token = push_current_trace(self.trace_graph)
+        self._node_token = push_current_node(None)
+        self.root_span.__enter__()
+        return self.root_span
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> bool:
+        self.root_span.__exit__(exc_type, exc, None)
+        if self._node_token is not None:
+            reset_current_node(self._node_token)
+        if self._trace_token is not None:
+            reset_current_trace(self._trace_token)
+        self._finalize()
+        return False
+
+    async def __aenter__(self) -> Span:
+        return self.__enter__()
+
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> bool:
+        return self.__exit__(exc_type, exc, tb)
+
+
+def trace(name: str, metadata: dict[str, object] | None = None) -> TraceContext:
+    """Create a trace context manager."""
+    return TraceContext(name=name, metadata=metadata)
