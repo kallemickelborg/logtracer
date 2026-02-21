@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ..graph import TraceGraph
+from ..models import TraceGraph
 from ..serializers import load_trace_json, save_trace_json
 
 

@@ -34,7 +34,7 @@ dev = [
 ]
 
 [project.scripts]
-logtracer = "logtracer.cli:main"
+logtracer = "logtracer.cli.main:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/logtracer"]
