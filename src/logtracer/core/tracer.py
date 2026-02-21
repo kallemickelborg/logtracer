@@ -1,4 +1,4 @@
-"""Trace entry points."""
+"""Tracer — the primary DI-constructed entry point for trace capture."""
 
 from __future__ import annotations
 
@@ -6,34 +6,55 @@ from contextvars import Token
 from datetime import UTC, datetime
 from types import TracebackType
 
-from .config import get_settings
-from .context import (
-    push_current_node,
-    push_current_trace,
-    reset_current_node,
-    reset_current_trace,
-)
-from .graph import Node, TraceGraph
+from ..models import Node, TraceGraph
+from ..storage import MemoryStore, StorageBackend
+from .context import push_current_node, push_current_trace, reset_current_node, reset_current_trace
 from .span import Span
+from .tracer_config import TracerConfig
+
+
+class Tracer:
+    """Owns its config and storage. Construct via DI or use the convenience layer."""
+
+    def __init__(
+        self,
+        config: TracerConfig | None = None,
+        storage: StorageBackend | None = None,
+    ) -> None:
+        self.config = config or TracerConfig()
+        self.storage: StorageBackend = storage or MemoryStore()
+
+    def trace(self, name: str, metadata: dict[str, object] | None = None) -> TraceContext:
+        return TraceContext(name=name, metadata=metadata, tracer=self)
 
 
 class TraceContext:
     """Sync + async context manager that captures one trace."""
 
-    def __init__(self, name: str, metadata: dict[str, object] | None = None) -> None:
+    def __init__(
+        self,
+        name: str,
+        tracer: Tracer,
+        metadata: dict[str, object] | None = None,
+    ) -> None:
+        self._tracer = tracer
         self.trace_graph = TraceGraph(
             name=name,
             metadata=metadata or {},
             start_time=datetime.now(UTC),
         )
-        self.root_span = Span(trace=self.trace_graph, name=name, node_type="trace")
+        self.root_span = Span(
+            trace=self.trace_graph,
+            name=name,
+            node_type="trace",
+            config=tracer.config,
+        )
         self._trace_token: Token[TraceGraph | None] | None = None
         self._node_token: Token[Node | None] | None = None
 
     def _finalize(self) -> None:
         self.trace_graph.end_time = datetime.now(UTC)
-        settings = get_settings()
-        settings.storage.save(self.trace_graph)
+        self._tracer.storage.save(self.trace_graph)
 
     def __enter__(self) -> Span:
         self._trace_token = push_current_trace(self.trace_graph)
@@ -65,8 +86,3 @@ class TraceContext:
         tb: TracebackType | None,
     ) -> bool:
         return self.__exit__(exc_type, exc, tb)
-
-
-def trace(name: str, metadata: dict[str, object] | None = None) -> TraceContext:
-    """Create a trace context manager."""
-    return TraceContext(name=name, metadata=metadata)

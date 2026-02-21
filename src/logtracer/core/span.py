@@ -8,12 +8,9 @@ from contextvars import Token
 from datetime import UTC, datetime
 from types import TracebackType
 
-from .context import (
-    get_current_node,
-    push_current_node,
-    reset_current_node,
-)
-from .graph import Edge, EdgeType, Node, NodeStatus, TraceGraph
+from ..models import Edge, EdgeType, Node, NodeStatus, TraceGraph
+from .context import get_current_node, push_current_node, reset_current_node
+from .tracer_config import TracerConfig
 
 
 class Span:
@@ -26,12 +23,14 @@ class Span:
         name: str,
         node_type: str = "custom",
         parent_node: Node | None = None,
+        config: TracerConfig | None = None,
         on_close: Callable[[Span], None] | None = None,
     ) -> None:
         self.trace = trace
         self.name = name
         self.node_type = node_type
         self.parent_node = parent_node if parent_node is not None else get_current_node()
+        self._config = config or TracerConfig()
         self._on_close = on_close
 
         self.node_record = Node(
@@ -46,26 +45,28 @@ class Span:
 
     def input(self, **kwargs: object) -> None:
         """Merge values into node input data."""
-        self.node_record.input_data.update(kwargs)
+        limit = self._config.max_input_size
+        self.node_record.input_data.update(
+            {key: _truncate_if_needed(value, limit) for key, value in kwargs.items()}
+        )
 
     def output(self, **kwargs: object) -> None:
         """Merge values into node output data."""
-        self.node_record.output_data.update(kwargs)
+        limit = self._config.max_output_size
+        self.node_record.output_data.update(
+            {key: _truncate_if_needed(value, limit) for key, value in kwargs.items()}
+        )
 
     def annotate(self, message: str) -> None:
-        """Append an annotation describing intent or rationale."""
         self.node_record.annotations.append(message)
 
     def metadata(self, **kwargs: object) -> None:
-        """Merge values into node metadata."""
         self.node_record.metadata.update(kwargs)
 
     def set_status(self, status: NodeStatus) -> None:
-        """Set status directly for advanced control flows."""
         self.node_record.status = status
 
     def link(self, target: Span, edge_type: EdgeType = EdgeType.DATA_FLOW) -> None:
-        """Create an edge to another span."""
         self.trace.add_edge(
             Edge(
                 source_id=self.node_record.id,
@@ -76,7 +77,13 @@ class Span:
 
     def node(self, name: str, node_type: str = "custom") -> Span:
         """Create a child span that automatically nests under this span."""
-        return Span(trace=self.trace, name=name, node_type=node_type, parent_node=self.node_record)
+        return Span(
+            trace=self.trace,
+            name=name,
+            node_type=node_type,
+            parent_node=self.node_record,
+            config=self._config,
+        )
 
     def __enter__(self) -> Span:
         if self._entered:
@@ -124,3 +131,13 @@ class Span:
         tb: TracebackType | None,
     ) -> bool:
         return self.__exit__(exc_type, exc, tb)
+
+
+def _truncate_if_needed(value: object, limit: int | None) -> object:
+    if limit is None or limit <= 0:
+        return value
+    if not isinstance(value, str):
+        return value
+    if len(value) <= limit:
+        return value
+    return f"{value[:limit]}... [TRUNCATED: original_size={len(value)}]"

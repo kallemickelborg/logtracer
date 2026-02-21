@@ -9,13 +9,12 @@ from typing import Literal
 from rich.console import Console
 from rich.tree import Tree
 
-from .graph import Node, NodeStatus, TraceGraph
+from ..models import Node, NodeStatus, TraceGraph
 
 Verbosity = Literal["minimal", "standard", "full"]
 
 
 def render_trace(trace: TraceGraph, *, verbosity: Verbosity = "standard") -> str:
-    """Render a trace to a human-readable tree string."""
     tree = Tree(_trace_label(trace))
     children_by_parent: dict[str | None, list[Node]] = defaultdict(list)
     for node in trace.nodes.values():
