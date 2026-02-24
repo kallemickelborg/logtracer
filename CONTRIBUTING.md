@@ -12,7 +12,7 @@ Thanks for your interest in contributing. logtracer is an open-source project an
 ### Setup
 
 ```bash
-git clone https://github.com/Mickelborg/logtracer.git
+git clone https://github.com/kallemickelborg/logtracer.git
 cd logtracer
 uv venv && source .venv/bin/activate
 uv sync --group dev
@@ -30,7 +30,8 @@ ruff format --check .     # format check
 
 ### Reporting Bugs
 
-Open an [issue](https://github.com/Mickelborg/logtracer/issues) with:
+Open an [issue](https://github.com/kallemickelborg/logtracer/issues) with:
+
 - What you expected to happen
 - What actually happened
 - Steps to reproduce
