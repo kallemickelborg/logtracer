@@ -5,6 +5,8 @@ Record, inspect, and debug AI agent execution — across any framework, any mode
 
 [Documentation](#usage) &bull; [Examples](#agent-pattern-examples) &bull; [Quick Start](#quick-start) &bull; [Contributing](#contributing)
 
+> **Pre-1.0 notice:** logtracer is under active development. The API may change between minor versions. Pin to `logtracer~=0.1` for stability within a minor release.
+
 ---
 
 ## What is logtracer?

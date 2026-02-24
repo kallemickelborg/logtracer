@@ -16,8 +16,17 @@ from __future__ import annotations
 
 from typing import Literal
 
-from .core import NullHook, Tracer, TracerConfig, TracerHook, trace_node
+from .core import NullHook, Span, Tracer, TracerConfig, TracerHook, trace_node
 from .core.tracer import TraceContext
+from .models import (
+    CURRENT_SCHEMA_VERSION,
+    Edge,
+    EdgeType,
+    Node,
+    NodeStatus,
+    NodeType,
+    TraceGraph,
+)
 from .storage import FileStore, MemoryStore, StorageBackend
 
 CaptureLevel = Literal["minimal", "standard", "full"]
@@ -75,10 +84,20 @@ def _resolve_storage(storage: str | StorageBackend) -> StorageBackend:
 
 
 __all__ = [
+    "CURRENT_SCHEMA_VERSION",
+    "CaptureLevel",
+    "Edge",
+    "EdgeType",
     "FileStore",
     "MemoryStore",
+    "Node",
+    "NodeStatus",
+    "NodeType",
     "NullHook",
+    "Span",
     "StorageBackend",
+    "TraceContext",
+    "TraceGraph",
     "Tracer",
     "TracerConfig",
     "TracerHook",
