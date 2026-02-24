@@ -9,7 +9,7 @@ Record, inspect, and debug AI agent execution — across any framework, any mode
 
 ## What is logtracer?
 
-AI agents plan, branch, retry, delegate, and fail — often invisibly. logtracer makes every step of that execution visible by recording it as a **temporal directed graph** that you can inspect, compare, and debug. This library provides node-level tracing throughout agent pipelines for improved observability and evaluation of agentic systems.
+AI agents plan, branch, retry, delegate, and fail, often invisibly. logtracer makes every step of that execution visible by recording it as a **temporal directed graph** that you can inspect, compare, and debug. This library provides node-level tracing throughout agent pipelines for improved observability and evaluation of agentic systems.
 
 | Layer | What it provides |
 |---|---|
@@ -277,13 +277,13 @@ src/logtracer/
 logtracer is not yet published on PyPI. To install from the repository:
 
 ```bash
-pip install git+https://github.com/Mickelborg/logtracer.git
+pip install git+https://github.com/kallemickelborg/logtracer.git
 ```
 
 Or clone and install locally:
 
 ```bash
-git clone https://github.com/Mickelborg/logtracer.git
+git clone https://github.com/kallemickelborg/logtracer.git
 cd logtracer
 pip install -e .
 ```
@@ -295,7 +295,7 @@ Contributions are welcome — whether it's bug reports, feature ideas, documenta
 ### Quick setup
 
 ```bash
-git clone https://github.com/Mickelborg/logtracer.git
+git clone https://github.com/kallemickelborg/logtracer.git
 cd logtracer
 uv venv && source .venv/bin/activate
 uv sync --group dev
