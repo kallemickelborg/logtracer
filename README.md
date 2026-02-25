@@ -281,24 +281,24 @@ src/nodetracer/
 
 ### Done
 
-- [x] Core capture engine (nodes, edges, context propagation, async-native)
-- [x] DI-based `Tracer` with `TracerConfig` (Pydantic v2)
-- [x] Pluggable storage (`MemoryStore`, `FileStore`, custom backends via protocol)
-- [x] CLI `inspect` with text, JSON, and file output
-- [x] Rich console tree renderer (minimal / standard / full verbosity)
-- [x] JSON serialization with versioned schema (`v0.1.0`)
-- [x] Agent validation examples (sequential, parallel, retry/fallback, multi-agent handoff)
-- [x] Event hook protocol (`TracerHook` with `on_node_started`, `on_node_completed`, `on_node_failed`, `on_trace_completed`)
-- [x] Error-handling contract: runtime tracing errors never crash the host (OpenTelemetry-style)
-- [x] Forward-compatible schema reader (`extra="ignore"`, version check with warning)
+- [x] Core capture engine (nodes, edges, context propagation, async-native) `(24/02/2026)`
+- [x] DI-based `Tracer` with `TracerConfig` (Pydantic v2) `(24/02/2026)`
+- [x] Pluggable storage (`MemoryStore`, `FileStore`, custom backends via protocol) `(24/02/2026)`
+- [x] CLI `inspect` with text, JSON, and file output `(24/02/2026)`
+- [x] Rich console tree renderer (minimal / standard / full verbosity) `(24/02/2026)`
+- [x] JSON serialization with versioned schema (`v0.1.0`) `(24/02/2026)`
+- [x] Agent validation examples (sequential, parallel, retry/fallback, multi-agent handoff) `(24/02/2026)`
+- [x] Event hook protocol (`TracerHook` with `on_node_started`, `on_node_completed`, `on_node_failed`, `on_trace_completed`) `(24/02/2026)`
+- [x] Error-handling contract: runtime tracing errors never crash the host (OpenTelemetry-style) `(24/02/2026)`
+- [x] Forward-compatible schema reader (`extra="ignore"`, version check with warning) `(24/02/2026)`
 
 ### Done (post-release)
 
-- [x] **Packaging artifacts** — `py.typed`, `CHANGELOG.md`, complete `__all__` exports, stability notice
-- [x] **Edge-case tests** — storage failure, malformed JSON, schema mismatch, non-serializable data, hook dispatch (39 tests)
-- [x] **CI/CD** — GitHub Actions test matrix (Python 3.11/3.12/3.13) + trusted publishing
-- [x] **PyPI release** — `pip install nodetracer` (v0.1.0)
-- [x] **Integration guide** — three integration levels, custom storage protocol, adapter implementation guide
+- [x] **Packaging artifacts** — `py.typed`, `CHANGELOG.md`, complete `__all__` exports, stability notice `(25/02/2026)`
+- [x] **Edge-case tests** — storage failure, malformed JSON, schema mismatch, non-serializable data, hook dispatch (39 tests) `(25/02/2026)`
+- [x] **CI/CD** — GitHub Actions test matrix (Python 3.11/3.12/3.13) + trusted publishing `(25/02/2026)`
+- [x] **PyPI release** — `pip install nodetracer` (v0.1.0) `(25/02/2026)`
+- [x] **Integration guide** — three integration levels, custom storage protocol, adapter implementation guide `(25/02/2026)`
 
 ### Next
 
