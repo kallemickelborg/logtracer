@@ -1,12 +1,13 @@
 # Integration guide
 
-nodetracer offers three integration levels. Pick the one that fits your project:
+nodetracer offers four integration levels. Pick the one that fits your project:
 
-| Level            | Effort                              | What you get                     |
-| ---------------- | ----------------------------------- | -------------------------------- |
-| **Manual**       | `with tracer.trace() / root.node()` | Full control, works everywhere   |
-| **Decorator**    | `@trace_node(...)` on functions     | Automatic function-level tracing |
-| **Adapter** *(future)* | `pip install nodetracer[framework]` | Auto-instrumentation        |
+| Level                | Effort                              | What you get                     |
+| -------------------- | ----------------------------------- | -------------------------------- |
+| **Manual**           | `with tracer.trace() / root.node()` | Full control, works everywhere   |
+| **Decorator**        | `@trace_node(...)` on functions     | Automatic function-level tracing |
+| **HTTP auto-instrumentation** | `pip install nodetracer[http]` + `instrument_http()` | Zero-boilerplate HTTP tracing (requests, httpx, aiohttp) |
+| **Framework adapters** *(future)* | `pip install nodetracer[adapters]` | LangChain, Agno, CrewAI, etc. |
 
 ---
 
@@ -181,13 +182,40 @@ with trace("mixed") as root:
 
 ---
 
-## Level 3: Framework adapters (future)
+## Level 3: HTTP auto-instrumentation
 
-Framework adapters will provide automatic instrumentation for popular AI agent frameworks. Each adapter will be an optional extra:
+HTTP auto-instrumentation patches popular Python HTTP clients so that every request creates a span when a trace is active. No code changes in your agent beyond one line of setup.
+
+**Supported libraries:** requests, httpx (sync + async), aiohttp.
 
 ```bash
-pip install nodetracer[langchain]
-pip install nodetracer[crewai]
+pip install nodetracer[http]
+```
+
+```python
+from nodetracer import Tracer
+from nodetracer.instrumentation import instrument_http
+from nodetracer.storage import FileStore
+
+tracer = Tracer(storage=FileStore("./traces"))
+instrument_http()  # patches requests, httpx, aiohttp (whichever is installed)
+
+with tracer.trace("agent_run") as root:
+    response = requests.get("https://api.example.com/data")  # auto-traced as http_request span
+```
+
+Each HTTP span records: `method`, `url`, `status_code`, `duration_ms`, `error` (if failed). When no trace is active, requests run normally with zero overhead.
+
+See [HTTP auto-instrumentation plan](plans/2026-02-24-feat-http-auto-instrumentation-plan.md) for implementation details.
+
+---
+
+## Level 4: Framework adapters (future)
+
+Framework adapters will provide automatic instrumentation for popular AI agent frameworks (LangChain, CrewAI, Agno, etc.):
+
+```bash
+pip install nodetracer[adapters]
 ```
 
 Adapters are not required for the core library to function. See the [adapter implementation guide](#writing-a-framework-adapter) below if you want to contribute one.
@@ -300,7 +328,7 @@ Understanding scope is as important as understanding features:
 | **Hosted dashboard / SaaS**    | nodetracer is a local library. There is no cloud service or account.                       | Export traces to your own tooling                |
 | **Log aggregation**            | nodetracer captures structured traces, not unstructured log lines.                         | Use structured logging alongside nodetracer      |
 | **Metrics / alerting**         | nodetracer captures individual traces, not aggregate metrics.                              | Use Prometheus, Datadog, etc. for metrics        |
-| **Automatic code rewriting**   | nodetracer requires explicit instrumentation (context managers or decorators).              | Future auto-instrumentation is on the roadmap    |
+| **Automatic code rewriting**   | nodetracer requires explicit instrumentation (context managers or decorators).              | HTTP auto-instrumentation (requests, httpx, aiohttp) is planned; framework adapters later |
 
 ---
 
