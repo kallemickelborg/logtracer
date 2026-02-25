@@ -34,5 +34,6 @@ Initial release.
 - **Packaging**: `py.typed` marker (PEP 561), complete `__all__` exports, typed inline annotations.
 - **CI/CD**: GitHub Actions test matrix (Python 3.11/3.12/3.13) and release workflow with PyPI trusted publishing.
 
+[0.3.0]: https://pypi.org/project/nodetracer/0.3.0/
 [0.2.1]: https://pypi.org/project/nodetracer/0.2.1/
 [0.1.0]: https://pypi.org/project/nodetracer/0.1.0/
