@@ -302,15 +302,16 @@ src/nodetracer/
 
 ### Next
 
+- [x] **HTTP auto-instrumentation** — zero-boilerplate tracing for requests, httpx, aiohttp (`pip install nodetracer[http]`)
 - [ ] **Distributed trace linking** — cross-process sub-agent tracing (`parent_trace_id`, context propagation)
-- [ ] **Framework adapters** — Agno, LangGraph, CrewAI, AutoGen (optional extras, not required for core)
+- [ ] **Framework adapters** — Agno, LangGraph, CrewAI, AutoGen (`nodetracer[adapters]`, not required for core)
 - [ ] **CLI live view** (`nodetracer watch`) — real-time terminal trace via `TracerHook`
 - [ ] **Interactive trace viewer** — browser-based temporal swimlane via WebSocket hook
 
 ### Long-term (production and ecosystem)
 
 - [ ] **Production hardening** — sampling, redaction, size limits, async export
-- [ ] **Auto-instrumentation** — patch OpenAI / Anthropic SDKs to auto-capture LLM calls
+- [ ] **LLM SDK auto-instrumentation** — patch OpenAI / Anthropic SDKs to auto-capture LLM calls
 - [ ] **Trace comparison** — load two traces, align by node name/type, highlight differences
 - [ ] Streaming LLM response capture (`on_node_updated` hook)
 - [ ] Human-in-the-loop tracing (pause/resume)

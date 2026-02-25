@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- **HTTP auto-instrumentation**: Zero-boilerplate tracing of HTTP requests via `pip install nodetracer[http]` and `instrument_http()`. Patches requests, httpx (sync + async), and aiohttp. When a trace is active, every HTTP request creates a child span with `method`, `url`, `status_code`, `duration_ms`, and `error` (if failed). Optional `url_filter` and `exclude_urls` for redaction and URL filtering.
+
 ## [0.2.1] - 2026-02-25
 
 ### Added
