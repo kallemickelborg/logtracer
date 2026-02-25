@@ -17,7 +17,6 @@ from nodetracer.models import Node, NodeStatus, TraceGraph
 from nodetracer.serializers import load_trace_json, save_trace_json, trace_from_json
 from nodetracer.storage import MemoryStore
 
-
 # ---------------------------------------------------------------------------
 # 1. Storage failure — trace context exits cleanly
 # ---------------------------------------------------------------------------
@@ -39,9 +38,8 @@ def test_storage_failure_does_not_propagate() -> None:
 
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always")
-        with tracer.trace("will_fail") as root:
-            with root.node("step", node_type="tool_call"):
-                pass
+        with tracer.trace("will_fail") as root, root.node("step", node_type="tool_call"):
+            pass
 
     warning_messages = [str(w.message) for w in caught]
     assert any("failed to save trace" in msg for msg in warning_messages)
@@ -102,11 +100,10 @@ def test_schema_version_mismatch_warns_but_parses(tmp_path: Path) -> None:
 
 
 def test_non_serializable_metadata_converted_to_string() -> None:
-    with trace("ns_run") as root:
-        with root.node("step", node_type="custom") as step:
-            step.metadata(callback=lambda x: x)
-            step.input(func=lambda: None)
-            step.output(obj=object())
+    with trace("ns_run") as root, root.node("step", node_type="custom") as step:
+        step.metadata(callback=lambda x: x)
+        step.input(func=lambda: None)
+        step.output(obj=object())
 
     node = next(n for n in root.trace.nodes.values() if n.name == "step")
     assert "[NON-SERIALIZABLE]" in str(node.metadata["callback"])
@@ -152,9 +149,8 @@ async def test_concurrent_traces_are_independent() -> None:
     tracer = Tracer(storage=store)
 
     async def run_trace(name: str) -> TraceGraph:
-        async with tracer.trace(name) as root:
-            async with root.node(f"{name}_step", node_type="tool_call"):
-                await asyncio.sleep(0)
+        async with tracer.trace(name) as root, root.node(f"{name}_step", node_type="tool_call"):
+            await asyncio.sleep(0)
         return root.trace
 
     results = await asyncio.gather(
@@ -223,10 +219,12 @@ def test_hook_receives_failed_event_on_error() -> None:
     hook = _RecordingHook()
     tracer = Tracer(hooks=[hook])
 
-    with pytest.raises(ValueError, match="oops"):
-        with tracer.trace("fail_trace") as root:
-            with root.node("bad_step", node_type="custom"):
-                raise ValueError("oops")
+    with (
+        pytest.raises(ValueError, match="oops"),
+        tracer.trace("fail_trace") as root,
+        root.node("bad_step", node_type="custom"),
+    ):
+        raise ValueError("oops")
 
     failed_events = [e for e in hook.events if e[0] == "failed"]
     failed_names = [e[1] for e in failed_events]
@@ -257,9 +255,8 @@ def test_broken_hook_does_not_crash_trace() -> None:
 
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always")
-        with tracer.trace("resilient") as root:
-            with root.node("step", node_type="tool_call"):
-                pass
+        with tracer.trace("resilient") as root, root.node("step", node_type="tool_call"):
+            pass
 
     assert root.trace.name == "resilient"
     assert len(root.trace.nodes) == 2
